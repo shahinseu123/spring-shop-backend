@@ -68,7 +68,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
     @GetMapping("/roles")
-    public ResponseEntity<List<?>> getRoles(){
+    public ResponseEntity<List<RoleGetDto>> getRoles(){
         return new ResponseEntity<>(roleService.findAll(), HttpStatus.OK);
     }
 

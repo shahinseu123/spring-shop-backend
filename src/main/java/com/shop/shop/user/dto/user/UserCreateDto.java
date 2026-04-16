@@ -7,9 +7,10 @@ import lombok.EqualsAndHashCode;
 import java.util.List;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class UserCreateDto extends UserBaseDto{
+@EqualsAndHashCode(callSuper = true)
+public class UserCreateDto extends UserBaseDto {
     private String username;
     private String password;
     private Long roleId;
 }
+

@@ -10,7 +10,4 @@ import java.util.List;
 public class UserUpdateDto extends UserBaseDto{
     private Long roleId;
     private String username;
-    private Long bdTerritoryId;
-    private List<Long> bdTerritoryIds;
-    private Long orgId;
 }
