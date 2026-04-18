@@ -111,11 +111,6 @@ public class ProductResponseDto {
     private Double averageRating;
     private BigDecimal commissionPercentage;
 
-    // Variations
-    private Boolean hasVariations;
-    private Map<String, List<String>> variationAttributes;
-    private List<ProductVariationGetDto> variations;
-
     // Timestamps
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

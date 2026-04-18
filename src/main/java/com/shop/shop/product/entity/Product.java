@@ -3,7 +3,6 @@ package com.shop.shop.product.entity;
 
 import com.shop.shop.brand.entity.Brand;
 import com.shop.shop.category.entity.Category;
-import com.shop.shop.supplier.entity.Supplier;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -115,9 +114,9 @@ public class Product {
     @JoinColumn(name = "brand_id")
     private Brand brand;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "supplier_id")
-    private Supplier supplier;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "supplier_id")
+//    private Supplier supplier;
 
     // Media
     @ElementCollection
@@ -131,13 +130,13 @@ public class Product {
     private String videoUrl;
 
     // Variations - One product can have many variations
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<ProductVariation> variations = new ArrayList<>();
+//    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @Builder.Default
+//    private List<ProductVariation> variations = new ArrayList<>();
 
     // Variation Attributes (JSON store of variation types)
-    @Column(columnDefinition = "JSON")
-    private String variationAttributes; // e.g., {"Color": ["Red", "Blue"], "Size": ["S", "M", "L"]}
+//    @Column(columnDefinition = "JSON")
+//    private String variationAttributes; // e.g., {"Color": ["Red", "Blue"], "Size": ["S", "M", "L"]}
 
     // SEO
     private String seoTitle;
@@ -176,24 +175,24 @@ public class Product {
     private Long version;
 
     // Helper methods
-    public void addVariation(ProductVariation variation) {
-        variations.add(variation);
-        variation.setProduct(this);
-        hasVariations = true;
-    }
+//    public void addVariation(ProductVariation variation) {
+//        variations.add(variation);
+//        variation.setProduct(this);
+//        hasVariations = true;
+//    }
+//
+//    public void removeVariation(ProductVariation variation) {
+//        variations.remove(variation);
+//        variation.setProduct(null);
+//        hasVariations = !variations.isEmpty();
+//    }
 
-    public void removeVariation(ProductVariation variation) {
-        variations.remove(variation);
-        variation.setProduct(null);
-        hasVariations = !variations.isEmpty();
-    }
-
-    public Integer getTotalStock() {
-        if (hasVariations && variations != null) {
-            return variations.stream()
-                    .mapToInt(ProductVariation::getQuantityInStock)
-                    .sum();
-        }
-        return quantityInStock;
-    }
+//    public Integer getTotalStock() {
+//        if (hasVariations && variations != null) {
+//            return variations.stream()
+//                    .mapToInt(ProductVariation::getQuantityInStock)
+//                    .sum();
+//        }
+//        return quantityInStock;
+//    }
 }

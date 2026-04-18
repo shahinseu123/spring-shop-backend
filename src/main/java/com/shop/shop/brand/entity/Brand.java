@@ -1,5 +1,6 @@
 package com.shop.shop.brand.entity;
 
+import com.shop.shop.IsActive;
 import com.shop.shop.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -31,18 +32,11 @@ public class Brand {
     @Column(nullable = false, unique = true)
     private String slug; // URL-friendly identifier e.g. "nike"
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
     private String logoUrl;
 
-    private String websiteUrl;
-
-    private String country; // Country of origin
-
     @Column(nullable = false)
-    @Builder.Default
-    private Boolean active = true;
+
+    private IsActive active;
 
     @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY)
     @Builder.Default

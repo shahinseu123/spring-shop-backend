@@ -1,5 +1,6 @@
 package com.shop.shop.category.dto;
 
+import com.shop.shop.category.entity.Category;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -8,12 +9,8 @@ import java.time.LocalDateTime;
 public class CategoryDto {
     private Long id;
     private String name;
-    private String description;
     private Long parentId;
-    private String parentName;
     private String slug;
     private String imageUrl;
-    private Boolean isActive;
-    private Integer sortOrder;
     private LocalDateTime createdAt;
 }

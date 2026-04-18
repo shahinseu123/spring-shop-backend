@@ -48,7 +48,7 @@ public class ProductCreateDto {
     // Relationships
     private Long categoryId;
     private Long brandId;
-    private Long supplierId;
+//    private Long supplierId;
 
     // Media
     private List<String> imageUrls;
