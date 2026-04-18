@@ -3,6 +3,7 @@ package com.shop.shop.product.entity;
 
 import com.shop.shop.brand.entity.Brand;
 import com.shop.shop.category.entity.Category;
+import com.shop.shop.product.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,10 +42,10 @@ public class Product {
     @Column(unique = true, length = 100)
     private String sku; // Stock Keeping Unit
 
-    @Column(unique = true, length = 100)
+    @Column(unique = false, length = 100)
     private String barcode;
 
-    @Column(unique = true, length = 100)
+    @Column(unique = false, length = 100)
     private String qrCode;
 
     // Pricing Information
@@ -87,8 +88,6 @@ public class Product {
 
     @Column(length = 20)
     private String availabilityStatus; // AVAILABLE, COMING_SOON, DISCONTINUED
-
-    private Boolean hasVariations = false;
 
     // Physical Attributes
     private Double weight;
@@ -145,13 +144,12 @@ public class Product {
     private String slug;
 
     // Status Flags
-    private Boolean isActive = true;
-    private Boolean isFeatured = false;
-    private Boolean isNewArrival = false;
-    private Boolean isBestSeller = false;
-    private Boolean isOnSale = false;
-    private Boolean isDigital = false;
-    private Boolean isPublished = true;
+    private IsActive isActive;
+    private IsFeatured isFeatured;
+    private IsNewArrival isNewArrival;
+    private IsDigital isDigital;
+    private IsPublished isPublished;
+    private HasVariations hasVariations;
 
     // Sales Metrics
     private Integer viewCount = 0;

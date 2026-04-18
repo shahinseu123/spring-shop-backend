@@ -1,5 +1,7 @@
 package com.shop.shop.category.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.shop.shop.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -38,6 +40,7 @@ public class Category {
     private Boolean active = true;
 
     // Self-referencing for nested/sub-categories
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Category parent;
@@ -48,6 +51,7 @@ public class Category {
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     @Builder.Default
+    @JsonIgnore
     private List<Product> products = new ArrayList<>();
 
     @CreationTimestamp

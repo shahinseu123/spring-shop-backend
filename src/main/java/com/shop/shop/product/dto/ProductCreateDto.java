@@ -1,5 +1,8 @@
 package com.shop.shop.product.dto;
 
+import com.shop.shop.product.*;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -61,13 +64,18 @@ public class ProductCreateDto {
     private String slug;
 
     // Status
-    private Boolean isActive;
-    private Boolean isFeatured;
-    private Boolean isNewArrival;
-    private Boolean isDigital;
-    private Boolean isPublished;
+    @Enumerated(value = EnumType.STRING)
+    private IsActive isActive;
+    @Enumerated(value = EnumType.STRING)
+    private IsFeatured isFeatured;
+    @Enumerated(value = EnumType.STRING)
+    private IsNewArrival isNewArrival;
+    @Enumerated(value = EnumType.STRING)
+    private IsDigital isDigital;
+    @Enumerated(value = EnumType.STRING)
+    private IsPublished isPublished;
 
     // Variations
-    private Boolean hasVariations;
-    private String variationAttributes; // JSON string of variation types
+    @Enumerated(value = EnumType.STRING)
+    private HasVariations hasVariations;
 }

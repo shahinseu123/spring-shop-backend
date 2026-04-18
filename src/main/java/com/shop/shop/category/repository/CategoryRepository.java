@@ -10,10 +10,19 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
+
+
+
     @Query("""
-     SELECT c.id as id, c.name as name, c.slug as slug, c.imageUrl as imageUrl FROM Category c
-     WHERE(:query IS NULL OR :query = '' OR LOWER(c.name) LIKE CONCAT('%', LOWER(:query), '%'))
-""")
+        SELECT c.id as id, 
+               c.name as name, 
+               c.slug as slug, 
+               c.imageUrl as imageUrl,
+               c.createdAt as createdAt
+        FROM Category c
+        WHERE(:query IS NULL  OR :query = '' OR LOWER(c.name) LIKE LOWER(CONCAT('%', LOWER(:query), '%')))
+
+    """)
     List<CategoryProjection> findAllCategories(@Param("query") String query);
 
     @Query("""
