@@ -9,6 +9,8 @@ import com.shop.shop.product.*;
 import com.shop.shop.product.dto.ProductCreateDto;
 import com.shop.shop.product.entity.Product;
 import com.shop.shop.product.repository.ProductRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,10 +77,17 @@ public class ProductServiceImpl implements ProductService {
         }
 
         if (dto.getBrandId() != null) {
-            Brand brand = brandRepository.findById(dto.getBrandId())
-                    .orElseThrow(() -> new RuntimeException("Brand not found with id: " + dto.getBrandId()));
-            newProduct.setBrand(brand);
+            BrandRepository.BrandProjection pBrand = brandRepository.findBrandDetailsById(dto.getBrandId());
+            Brand newBrand = new Brand();
+            newBrand.setId(pBrand.getId());
+            newBrand.setName(pBrand.getName());
+            newBrand.setLogoUrl(pBrand.getLogoUrl());
+            newBrand.setSlug(pBrand.getSlug());
+//            newBrand.setCreatedAt(newBrand.getCreatedAt());
+            newProduct.setBrand(newBrand);
         }
+
+
 
         // Media
         if (dto.getImageUrls() != null && !dto.getImageUrls().isEmpty()) {
@@ -106,6 +115,12 @@ public class ProductServiceImpl implements ProductService {
         // Variations
         newProduct.setHasVariations(HasVariations.YES);
         return productRepository.save(newProduct);
+    }
+
+    @Override
+    public Page<ProductRepository.ProductProjection> paginatedProducts(Pageable pageable, String query) {
+       return productRepository.findAllProducts(query, pageable);
+
     }
 
     // Helper method to generate slug

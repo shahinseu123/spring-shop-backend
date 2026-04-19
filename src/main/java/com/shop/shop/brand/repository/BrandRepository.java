@@ -26,10 +26,17 @@ public interface BrandRepository extends JpaRepository<Brand, Long> {
 """)
     List<BrandProjection> findAllBrandList(@Param("query") String query);
 
+    @Query("""
+      SELECT b.id as id, b.name as name, b.logoUrl as logoUrl, b.slug as slug  FROM Brand b 
+      WHERE b.id = :id
+""")
+    BrandProjection findBrandDetailsById(@Param("id") Long id);
+
     interface BrandProjection {
         Long getId();
         String getName();
         String getLogoUrl();
+        String getSlug();
     }
 
 }
