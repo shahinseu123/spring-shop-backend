@@ -123,6 +123,12 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
+    @Override
+    public ProductRepository.ProductDetailsProjection productDetails(Long id) {
+        ProductRepository.ProductDetailsProjection product = productRepository.findProductDetails(id);
+        return product;
+    }
+
     // Helper method to generate slug
     private String generateSlug(String name) {
         return name.toLowerCase()

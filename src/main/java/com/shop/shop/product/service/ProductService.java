@@ -9,9 +9,7 @@ import org.springframework.data.domain.Pageable;
 public interface ProductService {
     Product create(ProductCreateDto dto);
     Page <ProductRepository.ProductProjection> paginatedProducts(Pageable pageable, String query);
+    ProductRepository.ProductDetailsProjection productDetails(Long id);
 
-    interface ProductProjection {
-
-    }
 
 }

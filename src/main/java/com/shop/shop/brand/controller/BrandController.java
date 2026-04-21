@@ -29,13 +29,13 @@ public class BrandController {
        return new ResponseEntity<>(brandService.create(brandDto),HttpStatus.OK);
     }
 
-    @GetMapping("/details")
-    public ResponseEntity<Brand> brandDetails(@RequestParam("id") Long brandId){
+    @GetMapping("/details/{brandId}")
+    public ResponseEntity<Brand> brandDetails(@PathVariable Long brandId){
        return new ResponseEntity<>(brandService.details(brandId),HttpStatus.OK);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<Brand> updateBrand(@RequestBody BrandDto brandDto, @RequestParam("id") Long brandId){
+    @PutMapping("/update/{brandId}")
+    public ResponseEntity<Brand> updateBrand(@RequestBody BrandDto brandDto, @PathVariable Long brandId){
        return new ResponseEntity<>(brandService.update(brandDto, brandId),HttpStatus.OK);
     }
 

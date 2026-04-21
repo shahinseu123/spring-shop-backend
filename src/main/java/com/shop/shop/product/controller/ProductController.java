@@ -31,5 +31,10 @@ public class ProductController {
         return new ResponseEntity<>(productService.paginatedProducts(pageable, query.orElse(null)), HttpStatus.OK);
     }
 
+    @GetMapping("/details/{id}")
+    public ResponseEntity<?> productDetails(@PathVariable Long id) {
+        return new ResponseEntity<>(productService.productDetails(id), HttpStatus.OK);
+    }
+
 
 }
