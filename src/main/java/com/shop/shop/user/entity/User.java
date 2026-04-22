@@ -18,8 +18,8 @@ public class User {
     private String phoneNumber;
     @Column(unique = true)
     private String email;
-//    @Enumerated(EnumType.STRING)
-//    private DeleteStatus deleteStatus = DeleteStatus.NO;
+    @Enumerated(EnumType.STRING)
+    private DeleteStatus deleteStatus = DeleteStatus.NO;
     @ManyToOne
     private Role role;
     public User(Long id) {
