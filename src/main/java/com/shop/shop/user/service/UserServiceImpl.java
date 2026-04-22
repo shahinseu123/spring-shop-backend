@@ -74,12 +74,12 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    @Override
-    public Boolean checkIfUserIsDeleted(String username) {
-        Optional<User> userOp = userRepository.findByEmail(username);
-        if(userOp.isEmpty()) throw new RuntimeException("No user found with this email");
-        return userOp.get().getDeleteStatus().equals(DeleteStatus.YES);
-    }
+//    @Override
+//    public Boolean checkIfUserIsDeleted(String username) {
+//        Optional<User> userOp = userRepository.findByEmail(username);
+//        if(userOp.isEmpty()) throw new RuntimeException("No user found with this email");
+//        return userOp.get().getDeleteStatus().equals(DeleteStatus.YES);
+//    }
 
     @Override
     public void createRole(RoleCreateDto dto) {

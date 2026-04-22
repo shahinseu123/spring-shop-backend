@@ -3,7 +3,7 @@ VALUES ('ADMIN'),
 
        ('USER') ON CONFLICT (name) DO NOTHING;
 INSERT INTO users (name, email, role_id, delete_status)
-VALUES ('ADMIN', 'admin@test.com', 1, 'NO') ON CONFLICT
+VALUES ('ADMIN', 'admin@test.com', 1) ON CONFLICT
 (email) DO UPDATE SET name = EXCLUDED.name, email = EXCLUDED.email, role_id = EXCLUDED.role_id, delete_status = 'NO';
 
 INSERT INTO user_credential(username, password, client_secret, user_id)

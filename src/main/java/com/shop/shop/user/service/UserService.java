@@ -12,7 +12,7 @@ public interface UserService {
     User getLoggedInUser();
     void create(UserCreateDto dto);
     void update(Long id, UserUpdateDto dto);
-    Boolean checkIfUserIsDeleted(String username);
+//    Boolean checkIfUserIsDeleted(String username);
     void createRole(RoleCreateDto dto);
 
 }
