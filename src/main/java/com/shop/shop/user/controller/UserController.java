@@ -22,7 +22,7 @@ import java.util.Optional;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/v2")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
