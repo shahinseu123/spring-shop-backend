@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface CategoryService {
     Void create(CategoryDto dto);
+    Void deletecategory(Long id);
     CategoryDetailsDto categoryDetails(Long id);
     List<CategoryRepository.CategoryProjection> categoryList(String query);
 }

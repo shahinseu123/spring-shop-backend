@@ -32,6 +32,13 @@ public class CategoryServiceImpl implements CategoryService {
         return null;
     }
 
+    @Override
+    public Void deletecategory(Long id) {
+        Category category = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
+        categoryRepository.delete(category);
+        return null;
+    }
+
     @Transactional(readOnly = true)
     @Override
     public CategoryDetailsDto categoryDetails(Long id) {
