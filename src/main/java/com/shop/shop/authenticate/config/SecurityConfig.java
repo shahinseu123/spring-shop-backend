@@ -50,6 +50,7 @@ public class SecurityConfig extends WebMvcConfigurationSupport {
                         authorizeRequests.requestMatchers("/authenticate").permitAll()
                                 .requestMatchers("/users/**").permitAll()
                                 .requestMatchers("/api/v1/roles").permitAll()
+                                .requestMatchers("/api/v1/users").permitAll()
                                 .requestMatchers("/uploads/**").permitAll()
                                 .requestMatchers("/api/**").authenticated()
                 )
