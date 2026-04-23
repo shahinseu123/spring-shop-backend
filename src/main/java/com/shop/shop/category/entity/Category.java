@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -56,9 +57,11 @@ public class Category {
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
