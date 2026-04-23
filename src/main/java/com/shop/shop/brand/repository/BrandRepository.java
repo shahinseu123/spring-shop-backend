@@ -15,7 +15,7 @@ import java.util.List;
 public interface BrandRepository extends JpaRepository<Brand, Long> {
 
     @Query("""
-      SELECT b.id as id, b.name as name, b.logoUrl as logoUrl FROM Brand b 
+      SELECT b.id as id, b.name as name, b.logoUrl as logoUrl, b.slug as slug FROM Brand b 
       WHERE(:query IS NULL  OR :query = '' OR LOWER(b.name) LIKE LOWER(CONCAT('%', LOWER(:query), '%')))
 """)
     Page<BrandProjection> findAllBrand(@Param("query") String query, Pageable pageable);
