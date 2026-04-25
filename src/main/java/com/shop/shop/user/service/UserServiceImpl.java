@@ -57,6 +57,10 @@ public class UserServiceImpl implements UserService {
             Role role = roleRepository.findById(dto.getRoleId()).orElse(null);
             if (role == null) throw new RuntimeException("No Role found for this user");
             newUser.setRole(role);
+        }else{
+            Role role = roleRepository.findById(1L).orElse(null);
+            if (role == null) throw new RuntimeException("No Role found for this user");
+            newUser.setRole(role);
         }
 
         newUser = userRepository.save(newUser);
