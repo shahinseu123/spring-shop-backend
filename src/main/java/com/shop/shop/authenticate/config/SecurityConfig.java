@@ -51,7 +51,9 @@ public class SecurityConfig extends WebMvcConfigurationSupport {
                                 .requestMatchers("/users/**").permitAll()
                                 .requestMatchers("/v2/**").permitAll()
                                 .requestMatchers("/uploads/**").permitAll()
-                                .requestMatchers("/api/**").authenticated()
+                                .requestMatchers("/api/v1/brands/**").permitAll()
+                                .requestMatchers("/api/v1/categories/**").permitAll()
+                                .requestMatchers("/api/v1/products/**").permitAll()
                 )
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(sess ->
