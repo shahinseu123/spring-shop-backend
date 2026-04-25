@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/authenticate")
-@CrossOrigin(origins = {
-        "http://localhost:3000",
-        "http://localhost:3001"
-}, allowCredentials = "true")
+
 public class AuthenticateController {
     private final AuthenticateService authenticateService;
 
