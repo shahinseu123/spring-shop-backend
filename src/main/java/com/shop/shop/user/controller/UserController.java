@@ -23,6 +23,7 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @RequestMapping("/v2")
+@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.OPTIONS})
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;

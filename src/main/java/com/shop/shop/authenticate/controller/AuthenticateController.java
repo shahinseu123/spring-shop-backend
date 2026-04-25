@@ -22,7 +22,6 @@ public class AuthenticateController {
 
     @PostMapping
     public ResponseEntity<AuthResponse> authenticate(@RequestBody LoginRequestDto loginRequestDto) {
-        System.out.println(loginRequestDto);
         return new ResponseEntity<>(authenticateService.login(loginRequestDto),HttpStatus.OK);
     }
 
