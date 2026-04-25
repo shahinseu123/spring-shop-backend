@@ -59,15 +59,7 @@ public class SecurityConfig extends WebMvcConfigurationSupport {
         return http.build();
     }
 
-    @Override
-    protected void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedMethods("GET","POST","PUT","PATCH","OPTIONS","DELETE")
-                .allowedOrigins("*")
-                .allowedOriginPatterns("*")
-                .allowedHeaders("*")
-                .allowCredentials(false);
-    }
+
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {

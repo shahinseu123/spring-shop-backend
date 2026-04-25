@@ -7,6 +7,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/uploads/**")
@@ -15,17 +16,16 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // Apply to all endpoints
+        registry.addMapping("/**")
                 .allowedOrigins(
-                        "http://localhost:3000",     // Next.js default port
-                        "http://localhost:3001",     // Alternative Next.js port
-                        "http://localhost:8080",     // If running frontend on different port
-                        "https://your-frontend.vercel.app" // Add your production frontend URL
+                        "http://localhost:3000",
+                        "http://localhost:3001",
+                        "http://localhost:3002",
+                        "https://your-frontend-domain.vercel.app" // Replace with your actual frontend URL
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")
-                .allowCredentials(true)
-                .maxAge(3600); // Cache preflight request for 1 hour
+                .allowCredentials(true) // Set to true if using authentication (tokens/cookies)
+                .maxAge(3600);
     }
-
 }
