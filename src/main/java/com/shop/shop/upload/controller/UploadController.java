@@ -1,11 +1,16 @@
 package com.shop.shop.upload.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,6 +21,34 @@ import java.util.*;
 @RequestMapping("/upload")  // Changed from /uploads to /upload
 public class UploadController {
     private static final String UPLOAD_DIR = "upload/";  // Changed from uploads/ to upload/
+
+    @GetMapping("/{filename:.+}")
+    public ResponseEntity<Resource> getImage(@PathVariable String filename) {
+        try {
+            Path filePath = Paths.get(UPLOAD_DIR).resolve(filename).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (!resource.exists()) {
+                log.warn("Image not found: {}", filename);
+                return ResponseEntity.notFound().build();
+            }
+
+            // Determine content type
+            String contentType = URLConnection.guessContentTypeFromName(filename);
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CACHE_CONTROL, "max-age=3600")
+                    .body(resource);
+
+        } catch (Exception e) {
+            log.error("Error serving image: {}", filename, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     @PostMapping
     public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
