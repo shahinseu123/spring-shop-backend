@@ -49,6 +49,7 @@
                     .authorizeHttpRequests(authorizeRequests ->
                             authorizeRequests.requestMatchers("/authenticate").permitAll()
                                     .requestMatchers("/users/**").permitAll()
+                                    .requestMatchers("/upload/**").permitAll()
                                     .requestMatchers("/v2/**").permitAll()
                                     .requestMatchers("/uploads/**").permitAll()
                                     .requestMatchers("/api/v1/brands/**").permitAll()
