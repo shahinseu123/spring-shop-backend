@@ -10,8 +10,10 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:uploads/");
+        // Handle both /upload and /uploads paths
+        registry.addResourceHandler("/upload/**", "/uploads/**")
+                .addResourceLocations("file:upload/", "file:uploads/")
+                .setCachePeriod(3600);
     }
 
     @Override
@@ -21,11 +23,12 @@ public class WebConfig implements WebMvcConfigurer {
                         "http://localhost:3000",
                         "http://localhost:3001",
                         "http://localhost:3002",
-                        "https://your-frontend-domain.vercel.app" // Replace with your actual frontend URL
+                        "https://spring-shop-frontend.vercel.app", // Add your frontend URL
+                        "https://*.railway.app" // Allow railway frontends
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")
-                .allowCredentials(true) // Set to true if using authentication (tokens/cookies)
+                .allowCredentials(true)
                 .maxAge(3600);
     }
 }

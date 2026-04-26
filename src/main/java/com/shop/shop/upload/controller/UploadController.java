@@ -3,12 +3,8 @@ package com.shop.shop.upload.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,9 +13,9 @@ import java.util.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/uploads")
+@RequestMapping("/upload")  // Changed from /uploads to /upload
 public class UploadController {
-    private static final String UPLOAD_DIR = "uploads/";
+    private static final String UPLOAD_DIR = "upload/";  // Changed from uploads/ to upload/
 
     @PostMapping
     public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
@@ -44,7 +40,7 @@ public class UploadController {
             // Generate unique filename
             String originalFilename = file.getOriginalFilename();
             String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            String fileName = System.currentTimeMillis() + "_" + UUID.randomUUID().toString() + extension;
+            String fileName = System.currentTimeMillis() + "_" + UUID.randomUUID() + extension;
 
             // Save file to /upload directory
             Path uploadDir = Paths.get("upload/");
@@ -53,7 +49,7 @@ public class UploadController {
             Files.write(filePath, file.getBytes());
 
             // Return path starting from /upload
-            String fileUrl = "/upload/" + fileName;
+            String fileUrl = "/upload/" + fileName;  // This now matches
 
             return ResponseEntity.ok(Map.of(
                     "fileName", fileName,
@@ -63,6 +59,7 @@ public class UploadController {
             ));
 
         } catch (Exception e) {
+            log.error("Upload failed", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Upload failed: " + e.getMessage()));
         }
@@ -81,37 +78,31 @@ public class UploadController {
 
             for (MultipartFile file : files) {
                 try {
-                    // Validate file
                     if (file.isEmpty()) {
                         errors.add(file.getOriginalFilename() + " is empty");
                         continue;
                     }
 
-                    // Validate image type
                     String contentType = file.getContentType();
                     if (contentType == null || !contentType.startsWith("image/")) {
                         errors.add(file.getOriginalFilename() + " is not an image");
                         continue;
                     }
 
-                    // Validate file size
                     if (file.getSize() > 5 * 1024 * 1024) {
                         errors.add(file.getOriginalFilename() + " exceeds 5MB limit");
                         continue;
                     }
 
-                    // Generate unique filename
                     String originalFilename = file.getOriginalFilename();
                     String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
                     String fileName = System.currentTimeMillis() + "_" + UUID.randomUUID() + extension;
 
-                    // Save file to /upload directory
                     Path uploadDir = Paths.get("upload/");
                     Files.createDirectories(uploadDir);
                     Path filePath = uploadDir.resolve(fileName);
                     Files.write(filePath, file.getBytes());
 
-                    // Create URL
                     String fileUrl = "/upload/" + fileName;
                     urls.add(fileUrl);
 
@@ -139,8 +130,26 @@ public class UploadController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
+            log.error("Bulk upload failed", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Upload failed: " + e.getMessage()));
+        }
+    }
+
+    // Optional: Add delete endpoint
+    @DeleteMapping("/{filename}")
+    public ResponseEntity<?> deleteFile(@PathVariable String filename) {
+        try {
+            Path filePath = Paths.get("upload/" + filename);
+            if (Files.exists(filePath)) {
+                Files.delete(filePath);
+                return ResponseEntity.ok(Map.of("message", "File deleted successfully"));
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Delete failed: " + e.getMessage()));
         }
     }
 }
