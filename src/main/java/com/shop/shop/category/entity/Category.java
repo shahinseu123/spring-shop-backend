@@ -1,5 +1,6 @@
 package com.shop.shop.category.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.shop.shop.product.entity.Product;
@@ -57,7 +58,7 @@ public class Category {
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
     @UpdateTimestamp

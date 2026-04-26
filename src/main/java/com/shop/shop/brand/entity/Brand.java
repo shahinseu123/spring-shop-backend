@@ -1,5 +1,6 @@
 package com.shop.shop.brand.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.shop.shop.IsActive;
 import com.shop.shop.product.entity.Product;
 import jakarta.persistence.*;
@@ -44,6 +45,7 @@ public class Brand {
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
