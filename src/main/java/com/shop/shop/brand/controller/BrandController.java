@@ -40,8 +40,8 @@ public class BrandController {
        return new ResponseEntity<>(brandService.update(brandDto, brandId),HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<Brand> deleteBrand(@RequestParam("id") Long brandId){
+    @DeleteMapping("/delete/{brandId}")
+    public ResponseEntity<Brand> deleteBrand(@PathVariable Long brandId){
        return new ResponseEntity<>(brandService.delete(brandId),HttpStatus.OK);
     }
 
