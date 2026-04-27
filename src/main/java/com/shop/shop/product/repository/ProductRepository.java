@@ -30,6 +30,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
            p.name as name,
            p.slug as slug,
            p.sellingPrice as sellingPrice,
+           p.discountPrice as discountPrice,
+           p.discountPercentage as  discountPercentage,       
            p.thumbnailUrl as thumbnailUrl,
            b.name as brandName,
            b.logoUrl as brandLogoUrl
@@ -117,5 +119,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         String getThumbnailUrl();
         String getBrandName();
         String getBrandLogoUrl();
+        String getSku();
+        BigDecimal getDiscountPrice();
+        BigDecimal getDiscountPercentage();
     }
 }
