@@ -24,7 +24,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // JPQL/HQL Query for paginated products
 //    p.imageUrls as imageUrls,
 
-    @EntityGraph(attributePaths = {"imageUrls"})
     @Query("""
         SELECT DISTINCT 
            p.id as id,
@@ -114,7 +113,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         String getName();
         String getSlug();
         BigDecimal getSellingPrice();
-        String getImageUrls();  // This is List<String> in JPQL
+        List<String> getImageUrls();  // This is List<String> in JPQL
         String getThumbnailUrl();
         String getBrandName();
         String getBrandLogoUrl();
