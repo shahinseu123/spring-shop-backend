@@ -1,12 +1,8 @@
 package com.shop.shop.product.repository;
 
-import com.shop.shop.product.IsActive;
-import com.shop.shop.product.IsFeatured;
-import com.shop.shop.product.IsNewArrival;
 import com.shop.shop.product.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,22 +18,40 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // Check for duplicate slug
     boolean existsBySlug(String slug);
-    @Query("""
-    SELECT DISTINCT 
-       p.id as id,
-       p.name as name,
-       p.slug as slug,
-       p.sellingPrice as sellingPrice,
-//       p.imageUrls as imageUrls,
-       p.thumbnailUrl as thumbnailUrl,
-       b.name as brandName,
-       b.logoUrl as brandLogoUrl
-    FROM Product p
-    LEFT JOIN p.brand b
-    WHERE(:query IS NULL OR :query = '' OR LOWER(p.name) LIKE CONCAT('%', LOWER(:query), '%'))
-""")
+
+    // Paginated products with native query (fixes duplicate issue)
+    @SuppressWarnings("SqlNoDataSourceInspection")
+    @Query(value = """
+        SELECT DISTINCT ON (p.id)
+            p.id as id,
+            p.name as name,
+            p.slug as slug,
+            p.selling_price as sellingPrice,
+            p.thumbnail_url as thumbnailUrl,
+            b.name as brandName,
+            b.logo_url as brandLogoUrl,
+            COALESCE(
+                (SELECT JSON_AGG(pi.image_url) 
+                 FROM product_images pi 
+                 WHERE pi.product_id = p.id),
+                '[]'::json
+            ) as imageUrls
+        FROM products p
+        LEFT JOIN brands b ON p.brand_id = b.id
+        WHERE (:query IS NULL OR :query = '' OR LOWER(p.name) LIKE CONCAT('%', LOWER(:query), '%'))
+        ORDER BY p.id
+        OFFSET :offset
+        LIMIT :limit
+        """,
+            countQuery = """
+            SELECT COUNT(DISTINCT p.id)
+            FROM products p
+            WHERE (:query IS NULL OR :query = '' OR LOWER(p.name) LIKE CONCAT('%', LOWER(:query), '%'))
+            """,
+            nativeQuery = true)
     Page<ProductProjection> findAllProducts(@Param("query") String query, Pageable pageable);
 
+    // Keep this as HQL (working fine)
     @SuppressWarnings("SqlNoDataSourceInspection")
     @Query(value = """
     SELECT 
@@ -107,15 +121,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     }
 
     interface ProductProjection {
-            Long getId();
-            String getName();
-            String getSlug();
-            BigDecimal getSellingPrice();
-            String getThumbnailUrl();
-//            List<String> getImageUrls();
-            // Brand fields
-            String getBrandName();
-            String getBrandLogoUrl();
+        Long getId();
+        String getName();
+        String getSlug();
+        BigDecimal getSellingPrice();
+        String getThumbnailUrl();
+        String getImageUrls();  // This will be a JSON string, parse in service
+        String getBrandName();
+        String getBrandLogoUrl();
     }
-
 }
