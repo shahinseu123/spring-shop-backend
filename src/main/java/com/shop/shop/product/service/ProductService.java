@@ -10,6 +10,7 @@ public interface ProductService {
     Product create(ProductCreateDto dto);
     Page <ProductRepository.ProductProjection> paginatedProducts(Pageable pageable, String query);
     ProductRepository.ProductDetailsProjection productDetails(Long id);
+    Void deleteProduct(Long id);
 
 
 }

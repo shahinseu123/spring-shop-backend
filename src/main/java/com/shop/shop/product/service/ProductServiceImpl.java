@@ -129,6 +129,15 @@ public class ProductServiceImpl implements ProductService {
         return product;
     }
 
+    @Override
+    public Void deleteProduct(Long id) {
+        Product product = productRepository.findById(id).orElse(null);
+        if(product != null) {
+            productRepository.delete(product);
+        }
+        return null;
+    }
+
     // Helper method to generate slug
     private String generateSlug(String name) {
         return name.toLowerCase()
