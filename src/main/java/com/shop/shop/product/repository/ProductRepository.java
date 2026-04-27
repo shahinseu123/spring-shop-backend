@@ -32,6 +32,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
            p.sellingPrice as sellingPrice,
            p.discountPrice as discountPrice,
            p.discountPercentage as  discountPercentage,       
+           p.sku as  sku,       
            p.thumbnailUrl as thumbnailUrl,
            b.name as brandName,
            b.logoUrl as brandLogoUrl
