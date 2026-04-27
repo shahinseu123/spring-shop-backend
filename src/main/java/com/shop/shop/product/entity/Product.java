@@ -119,10 +119,9 @@ public class Product {
 //    private Supplier supplier;
 
     // Media
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "image_url")
-    @BatchSize(size = 20)  // Batch fetch 20 products' images at once
     private List<String> imageUrls = new ArrayList<>();
 
     private String thumbnailUrl;
