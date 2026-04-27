@@ -117,7 +117,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductRepository.ProductProjection> paginatedProducts(Pageable pageable, String query) {
-        return productRepository.findAllProducts(query, pageable);
+        int offset = (int) pageable.getOffset();
+        int limit = pageable.getPageSize();
+        return productRepository.findAllProducts(query,offset,limit, pageable);
     }
 
     @Override
