@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -118,10 +119,10 @@ public class Product {
 //    private Supplier supplier;
 
     // Media
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "image_url")
-    @Builder.Default
+    @BatchSize(size = 20)  // Batch fetch 20 products' images at once
     private List<String> imageUrls = new ArrayList<>();
 
     private String thumbnailUrl;
