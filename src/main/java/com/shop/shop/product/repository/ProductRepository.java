@@ -13,120 +13,65 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
+
     // Check for duplicate SKU
     boolean existsBySku(String sku);
 
     // Check for duplicate slug
     boolean existsBySlug(String slug);
 
-    // Fixed paginated products with native query
-    @SuppressWarnings("SqlNoDataSourceInspection")
+    // JPQL/HQL Query for paginated products
+//    p.imageUrls as imageUrls,
 
+    @Query("""
+        SELECT DISTINCT 
+           p.id as id,
+           p.name as name,
+           p.slug as slug,
+           p.sellingPrice as sellingPrice,
+           p.thumbnailUrl as thumbnailUrl,
+           b.name as brandName,
+           b.logoUrl as brandLogoUrl
+        FROM Product p
+        LEFT JOIN p.brand b
+        WHERE (:query IS NULL OR :query = '' OR LOWER(p.name) LIKE CONCAT('%', LOWER(:query), '%'))
+    """)
+    Page<ProductProjection> findAllProducts(@Param("query") String query, Pageable pageable);
+
+    // Native query for product details (keeping as is)
+    @SuppressWarnings("SqlNoDataSourceInspection")
     @Query(value = """
-        SELECT DISTINCT ON (p.id)
-            p.id as id,
-            p.name as name,
-            p.slug as slug,
+        SELECT 
+            p.id,
+            p.name,
+            p.short_description as shortDescription,
+            p.long_description as longDescription,
+            p.sku,
             p.selling_price as sellingPrice,
+            p.discount_price as discountPrice,
+            p.discount_percentage as discountPercentage,
+            p.mrp,
+            p.quantity_in_stock as quantityInStock,
+            p.stock_status as stockStatus,
+            p.availability_status as availabilityStatus,
             p.thumbnail_url as thumbnailUrl,
+            (SELECT JSON_ARRAYAGG(pi.image_url) FROM product_images pi WHERE pi.product_id = p.id) as imageUrls,
+            p.is_active as isActive,
+            p.is_featured as isFeatured,
+            p.is_new_arrival as isNewArrival,
+            p.average_rating as averageRating,
+            p.review_count as reviewCount,
+            b.id as brandId,
             b.name as brandName,
             b.logo_url as brandLogoUrl,
-            COALESCE(
-                (SELECT JSON_AGG(pi.image_url) 
-                 FROM product_images pi 
-                 WHERE pi.product_id = p.id),
-                '[]'::json
-            ) as imageUrls
+            c.id as categoryId,
+            c.name as categoryName,
+            c.slug as categorySlug
         FROM products p
         LEFT JOIN brands b ON p.brand_id = b.id
-        WHERE (:query IS NULL OR :query = '' OR LOWER(p.name) LIKE CONCAT('%', LOWER(:query), '%'))
-        ORDER BY p.id
-        OFFSET :offset
-        LIMIT :limit
-        """,
-            countQuery = """
-            SELECT COUNT(DISTINCT p.id)
-            FROM products p
-            WHERE (:query IS NULL OR :query = '' OR LOWER(p.name) LIKE CONCAT('%', LOWER(:query), '%'))
-            """,
-            nativeQuery = true)
-    Page<ProductProjection> findAllProducts(
-            @Param("query") String query,
-            @Param("offset") int offset,
-            @Param("limit") int limit,
-            Pageable pageable
-    );
-
-    // Alternative: Use SpEL expression (Spring Expression Language)
-    @SuppressWarnings("SqlNoDataSourceInspection")
-
-    @Query(value = """
-        SELECT DISTINCT ON (p.id)
-            p.id as id,
-            p.name as name,
-            p.slug as slug,
-            p.selling_price as sellingPrice,
-            p.thumbnail_url as thumbnailUrl,
-            b.name as brandName,
-            b.logo_url as brandLogoUrl,
-            COALESCE(
-                (SELECT JSON_AGG(pi.image_url) 
-                 FROM product_images pi 
-                 WHERE pi.product_id = p.id),
-                '[]'::json
-            ) as imageUrls
-        FROM products p
-        LEFT JOIN brands b ON p.brand_id = b.id
-        WHERE (:query IS NULL OR :query = '' OR LOWER(p.name) LIKE CONCAT('%', LOWER(:query), '%'))
-        ORDER BY p.id
-        OFFSET \:#{#pageable.offset}
-        LIMIT \:#{#pageable.pageSize}
-        """,
-            countQuery = """
-            SELECT COUNT(DISTINCT p.id)
-            FROM products p
-            WHERE (:query IS NULL OR :query = '' OR LOWER(p.name) LIKE CONCAT('%', LOWER(:query), '%'))
-            """,
-            nativeQuery = true)
-    Page<ProductProjection> findAllProductsSpel(
-            @Param("query") String query,
-            Pageable pageable
-    );
-
-    // Keep this as is (working fine)
-    @SuppressWarnings("SqlNoDataSourceInspection")
-    @Query(value = """
-    SELECT 
-        p.id,
-        p.name,
-        p.short_description as shortDescription,
-        p.long_description as longDescription,
-        p.sku,
-        p.selling_price as sellingPrice,
-        p.discount_price as discountPrice,
-        p.discount_percentage as discountPercentage,
-        p.mrp,
-        p.quantity_in_stock as quantityInStock,
-        p.stock_status as stockStatus,
-        p.availability_status as availabilityStatus,
-        p.thumbnail_url as thumbnailUrl,
-        (SELECT JSON_ARRAYAGG(pi.image_url) FROM product_images pi WHERE pi.product_id = p.id) as imageUrls,
-        p.is_active as isActive,
-        p.is_featured as isFeatured,
-        p.is_new_arrival as isNewArrival,
-        p.average_rating as averageRating,
-        p.review_count as reviewCount,
-        b.id as brandId,
-        b.name as brandName,
-        b.logo_url as brandLogoUrl,
-        c.id as categoryId,
-        c.name as categoryName,
-        c.slug as categorySlug
-    FROM products p
-    LEFT JOIN brands b ON p.brand_id = b.id
-    LEFT JOIN categories c ON p.category_id = c.id
-    WHERE p.id = :id
-    GROUP BY p.id, b.id, c.id
+        LEFT JOIN categories c ON p.category_id = c.id
+        WHERE p.id = :id
+        GROUP BY p.id, b.id, c.id
     """, nativeQuery = true)
     ProductDetailsProjection findProductDetails(@Param("id") Long id);
 
@@ -167,8 +112,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         String getName();
         String getSlug();
         BigDecimal getSellingPrice();
+//        List<String> getImageUrls();  // This is List<String> in JPQL
         String getThumbnailUrl();
-        String getImageUrls();  // JSON string, parse in service
         String getBrandName();
         String getBrandLogoUrl();
     }
