@@ -23,7 +23,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
        p.name as name,
        p.slug as slug,
        p.sellingPrice as sellingPrice,
-       p.imageUrls as imageUrls
+       p.imageUrls as imageUrls,
        p.thumbnailUrl as thumbnailUrl,
        b.name as brandName,
        b.logoUrl as brandLogoUrl
