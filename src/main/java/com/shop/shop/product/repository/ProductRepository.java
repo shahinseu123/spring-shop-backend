@@ -114,7 +114,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         String getName();
         String getSlug();
         BigDecimal getSellingPrice();
-        List<String> getImageUrls();  // This is List<String> in JPQL
+        String getImageUrls();  // This is List<String> in JPQL
         String getThumbnailUrl();
         String getBrandName();
         String getBrandLogoUrl();
