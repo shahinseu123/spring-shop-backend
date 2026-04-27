@@ -17,6 +17,11 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
+    // Check for duplicate SKU
+    boolean existsBySku(String sku);
+
+    // Check for duplicate slug
+    boolean existsBySlug(String slug);
     @Query("""
     SELECT 
        p.id as id,

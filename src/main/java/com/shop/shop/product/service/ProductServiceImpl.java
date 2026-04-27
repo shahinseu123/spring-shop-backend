@@ -4,7 +4,6 @@ import com.shop.shop.brand.entity.Brand;
 import com.shop.shop.brand.repository.BrandRepository;
 import com.shop.shop.category.entity.Category;
 import com.shop.shop.category.repository.CategoryRepository;
-
 import com.shop.shop.product.*;
 import com.shop.shop.product.dto.ProductCreateDto;
 import com.shop.shop.product.entity.Product;
@@ -20,7 +19,9 @@ public class ProductServiceImpl implements ProductService {
     private final BrandRepository brandRepository;
     private final ProductRepository productRepository;
 
-    public ProductServiceImpl(CategoryRepository categoryRepository, BrandRepository brandRepository, ProductRepository productRepository) {
+    public ProductServiceImpl(CategoryRepository categoryRepository,
+                              BrandRepository brandRepository,
+                              ProductRepository productRepository) {
         this.categoryRepository = categoryRepository;
         this.brandRepository = brandRepository;
         this.productRepository = productRepository;
@@ -29,6 +30,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public Product create(ProductCreateDto dto) {
+        // Check if product with same SKU or name already exists
+        if (productRepository.existsBySku(dto.getName().toLowerCase())) {
+            throw new RuntimeException("Product with same SKU already exists");
+        }
+
         Product newProduct = new Product();
 
         // Basic Information
@@ -64,30 +70,18 @@ public class ProductServiceImpl implements ProductService {
         newProduct.setColor(dto.getColor());
         newProduct.setMaterial(dto.getMaterial());
 
-        // Relationships
+        // Relationships - FIXED: Fetch actual entities instead of creating new ones
         if (dto.getCategoryId() != null) {
-            CategoryRepository.CategoryProjection pCategory = categoryRepository.findCategoryDetails(dto.getCategoryId());
-            Category newCategory = new Category();
-            newCategory.setId(pCategory.getId());
-            newCategory.setName(pCategory.getName());
-            newCategory.setImageUrl(pCategory.getImageUrl());
-            newCategory.setSlug(pCategory.getSlug());
-            newCategory.setCreatedAt(pCategory.getCreatedAt());
-            newProduct.setCategory(newCategory);
+            Category category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found with id: " + dto.getCategoryId()));
+            newProduct.setCategory(category);
         }
 
         if (dto.getBrandId() != null) {
-            BrandRepository.BrandProjection pBrand = brandRepository.findBrandDetailsById(dto.getBrandId());
-            Brand newBrand = new Brand();
-            newBrand.setId(pBrand.getId());
-            newBrand.setName(pBrand.getName());
-            newBrand.setLogoUrl(pBrand.getLogoUrl());
-            newBrand.setSlug(pBrand.getSlug());
-//            newBrand.setCreatedAt(newBrand.getCreatedAt());
-            newProduct.setBrand(newBrand);
+            Brand brand = brandRepository.findById(dto.getBrandId())
+                    .orElseThrow(() -> new RuntimeException("Brand not found with id: " + dto.getBrandId()));
+            newProduct.setBrand(brand);
         }
-
-
 
         // Media
         if (dto.getImageUrls() != null && !dto.getImageUrls().isEmpty()) {
@@ -100,10 +94,15 @@ public class ProductServiceImpl implements ProductService {
         newProduct.setSeoTitle(dto.getSeoTitle());
         newProduct.setSeoDescription(dto.getSeoDescription());
 
-        // Generate slug if not provided
-
-        newProduct.setSlug(generateSlug(dto.getName().toLowerCase()));
-
+        // Generate unique slug
+        String baseSlug = generateSlug(dto.getName());
+        String finalSlug = baseSlug;
+        int counter = 1;
+        while (productRepository.existsBySlug(finalSlug)) {
+            finalSlug = baseSlug + "-" + counter;
+            counter++;
+        }
+        newProduct.setSlug(finalSlug);
 
         // Status
         newProduct.setIsActive(IsActive.YES);
@@ -111,39 +110,36 @@ public class ProductServiceImpl implements ProductService {
         newProduct.setIsNewArrival(IsNewArrival.YES);
         newProduct.setIsDigital(IsDigital.YES);
         newProduct.setIsPublished(IsPublished.YES);
-
-        // Variations
         newProduct.setHasVariations(HasVariations.YES);
+
         return productRepository.save(newProduct);
     }
 
     @Override
     public Page<ProductRepository.ProductProjection> paginatedProducts(Pageable pageable, String query) {
-       return productRepository.findAllProducts(query, pageable);
-
+        return productRepository.findAllProducts(query, pageable);
     }
 
     @Override
     public ProductRepository.ProductDetailsProjection productDetails(Long id) {
-        ProductRepository.ProductDetailsProjection product = productRepository.findProductDetails(id);
-        return product;
+        return productRepository.findProductDetails(id);
     }
 
     @Override
+    @Transactional
     public Void deleteProduct(Long id) {
-        Product product = productRepository.findById(id).orElse(null);
-        if(product != null) {
-            productRepository.delete(product);
-        }
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+        productRepository.delete(product);
         return null;
     }
 
     // Helper method to generate slug
     private String generateSlug(String name) {
         return name.toLowerCase()
+                .trim()
                 .replaceAll("[^a-z0-9\\s-]", "")
                 .replaceAll("\\s+", "-")
-                .replaceAll("-+", "-")
-                .trim();
+                .replaceAll("-+", "-");
     }
 }
