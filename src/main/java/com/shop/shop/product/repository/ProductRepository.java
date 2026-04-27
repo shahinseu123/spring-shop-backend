@@ -34,7 +34,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
        b.logoUrl as brandLogoUrl
     FROM Product p
     LEFT JOIN p.brand b
-    WHERE(:query IS NULL OR :query = "" OR LOWER(p.name) LIKE CONCAT("%",LOWER(:query), "%"))
+    WHERE(:query IS NULL OR :query = '' OR LOWER(p.name) LIKE CONCAT('%', LOWER(:query), '%'))
 """)
     Page<ProductProjection> findAllProducts(@Param("query") String query, Pageable pageable);
 
