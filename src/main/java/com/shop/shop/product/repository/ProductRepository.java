@@ -23,7 +23,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // Check for duplicate slug
     boolean existsBySlug(String slug);
     @Query("""
-    SELECT 
+    SELECT DISTINCT 
        p.id as id,
        p.name as name,
        p.slug as slug,
