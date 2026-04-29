@@ -1,6 +1,7 @@
 package com.shop.shop.upload.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,23 +22,19 @@ import java.util.*;
 @RestController
 @RequestMapping("/upload")
 public class UploadController {
-    private static final String UPLOAD_DIR = "upload/";
 
-    // Get base URL from environment or properties (you can also hardcode for development)
-    private String getBaseUrl() {
-        // For development, you can use localhost. For production, get from config.
-        // This should be configured in application.properties: app.base-url=http://localhost:8080
-        String baseUrl = System.getenv("BASE_URL");
-        if (baseUrl == null || baseUrl.isEmpty()) {
-            baseUrl = "http://localhost:8080"; // Default for development
-        }
-        return baseUrl;
-    }
+    @Value("${app.base-url:https://spring-shop-backend-production.up.railway.app}")
+    private String baseUrl;
+
+    @Value("${app.upload-dir:upload/}")
+    private String uploadDir;
+
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
     @GetMapping("/{filename:.+}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {
         try {
-            Path filePath = Paths.get(UPLOAD_DIR).resolve(filename).normalize();
+            Path filePath = Paths.get(uploadDir).resolve(filename).normalize();
             Resource resource = new UrlResource(filePath.toUri());
 
             if (!resource.exists()) {
@@ -75,9 +73,8 @@ public class UploadController {
                 return ResponseEntity.badRequest().body(Map.of("error", "Only image files are allowed"));
             }
 
-            // Validate file size (5MB max)
-            long maxSize = 5 * 1024 * 1024;
-            if (file.getSize() > maxSize) {
+            // Validate file size
+            if (file.getSize() > MAX_FILE_SIZE) {
                 return ResponseEntity.badRequest().body(Map.of("error", "File size exceeds 5MB limit"));
             }
 
@@ -86,21 +83,24 @@ public class UploadController {
             String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             String fileName = System.currentTimeMillis() + "_" + UUID.randomUUID() + extension;
 
-            // Save file to /upload directory
-            Path uploadDir = Paths.get("upload/");
-            Files.createDirectories(uploadDir);
-            Path filePath = uploadDir.resolve(fileName);
+            // Save file
+            Path uploadPath = Paths.get(uploadDir);
+            Files.createDirectories(uploadPath);
+            Path filePath = uploadPath.resolve(fileName);
             Files.write(filePath, file.getBytes());
 
-            // Return full URL
-            String fullUrl = getBaseUrl() + "/upload/" + fileName;
+            // Generate full URL using configured base URL
+            String fullUrl = baseUrl + "/upload/" + fileName;
+
+            log.info("File uploaded successfully: {} -> {}", fileName, fullUrl);
 
             return ResponseEntity.ok(Map.of(
                     "fileName", fileName,
                     "url", fullUrl,
-                    "fullUrl", fullUrl, // Explicit full URL field
+                    "fullUrl", fullUrl,
                     "fileSize", file.getSize(),
-                    "contentType", contentType
+                    "contentType", contentType,
+                    "originalName", originalFilename
             ));
 
         } catch (Exception e) {
@@ -119,7 +119,6 @@ public class UploadController {
 
             List<Map<String, String>> uploadedFiles = new ArrayList<>();
             List<String> urls = new ArrayList<>();
-            List<String> fullUrls = new ArrayList<>();
             List<String> errors = new ArrayList<>();
 
             for (MultipartFile file : files) {
@@ -135,7 +134,7 @@ public class UploadController {
                         continue;
                     }
 
-                    if (file.getSize() > 5 * 1024 * 1024) {
+                    if (file.getSize() > MAX_FILE_SIZE) {
                         errors.add(file.getOriginalFilename() + " exceeds 5MB limit");
                         continue;
                     }
@@ -144,22 +143,24 @@ public class UploadController {
                     String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
                     String fileName = System.currentTimeMillis() + "_" + UUID.randomUUID() + extension;
 
-                    Path uploadDir = Paths.get("upload/");
-                    Files.createDirectories(uploadDir);
-                    Path filePath = uploadDir.resolve(fileName);
+                    Path uploadPath = Paths.get(uploadDir);
+                    Files.createDirectories(uploadPath);
+                    Path filePath = uploadPath.resolve(fileName);
                     Files.write(filePath, file.getBytes());
 
-                    String fullUrl = getBaseUrl() + "/upload/" + fileName;
+                    String fullUrl = baseUrl + "/upload/" + fileName;
                     urls.add(fullUrl);
-                    fullUrls.add(fullUrl);
 
                     uploadedFiles.add(Map.of(
                             "originalName", originalFilename,
                             "fileName", fileName,
                             "url", fullUrl,
                             "fullUrl", fullUrl,
-                            "size", String.valueOf(file.getSize())
+                            "size", String.valueOf(file.getSize()),
+                            "contentType", contentType
                     ));
+
+                    log.info("File uploaded successfully in bulk: {} -> {}", fileName, fullUrl);
 
                 } catch (Exception e) {
                     errors.add("Failed to upload " + file.getOriginalFilename() + ": " + e.getMessage());
@@ -168,13 +169,15 @@ public class UploadController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("uploadedFiles", uploadedFiles);
-            response.put("urls", fullUrls);
-            response.put("fullUrls", fullUrls); // Explicit full URLs field
+            response.put("urls", urls);
+            response.put("fullUrls", urls);
             response.put("totalUploaded", uploadedFiles.size());
             response.put("totalFiles", files.size());
             if (!errors.isEmpty()) {
                 response.put("errors", errors);
             }
+
+            log.info("Bulk upload completed: {} of {} files uploaded successfully", uploadedFiles.size(), files.size());
 
             return ResponseEntity.ok(response);
 
@@ -185,18 +188,23 @@ public class UploadController {
         }
     }
 
-    // Delete endpoint
     @DeleteMapping("/{filename}")
     public ResponseEntity<?> deleteFile(@PathVariable String filename) {
         try {
-            Path filePath = Paths.get("upload/" + filename);
+            Path filePath = Paths.get(uploadDir + filename);
             if (Files.exists(filePath)) {
                 Files.delete(filePath);
-                return ResponseEntity.ok(Map.of("message", "File deleted successfully"));
+                log.info("File deleted successfully: {}", filename);
+                return ResponseEntity.ok(Map.of(
+                        "message", "File deleted successfully",
+                        "fileName", filename
+                ));
             } else {
+                log.warn("File not found for deletion: {}", filename);
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
+            log.error("Delete failed for file: {}", filename, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Delete failed: " + e.getMessage()));
         }
