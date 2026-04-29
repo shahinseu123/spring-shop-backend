@@ -23,10 +23,10 @@ import java.util.*;
 @RequestMapping("/upload")
 public class UploadController {
 
-    @Value("${app.base-url:https://spring-shop-backend-production.up.railway.app}")
+    @Value("${base-url:https://spring-shop-backend-production.up.railway.app}")
     private String baseUrl;
 
-    @Value("${app.upload-dir:upload/}")
+    @Value("${upload-dir:upload/}")
     private String uploadDir;
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
