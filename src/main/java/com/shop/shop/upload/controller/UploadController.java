@@ -18,9 +18,20 @@ import java.util.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/upload")  // Changed from /uploads to /upload
+@RequestMapping("/upload")
 public class UploadController {
-    private static final String UPLOAD_DIR = "upload/";  // Changed from uploads/ to upload/
+    private static final String UPLOAD_DIR = "upload/";
+
+    // Get base URL from environment or properties (you can also hardcode for development)
+    private String getBaseUrl() {
+        // For development, you can use localhost. For production, get from config.
+        // This should be configured in application.properties: app.base-url=http://localhost:8080
+        String baseUrl = System.getenv("BASE_URL");
+        if (baseUrl == null || baseUrl.isEmpty()) {
+            baseUrl = "http://localhost:8080"; // Default for development
+        }
+        return baseUrl;
+    }
 
     @GetMapping("/{filename:.+}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {
@@ -81,12 +92,13 @@ public class UploadController {
             Path filePath = uploadDir.resolve(fileName);
             Files.write(filePath, file.getBytes());
 
-            // Return path starting from /upload
-            String fileUrl = "/upload/" + fileName;  // This now matches
+            // Return full URL
+            String fullUrl = getBaseUrl() + "/upload/" + fileName;
 
             return ResponseEntity.ok(Map.of(
                     "fileName", fileName,
-                    "url", fileUrl,
+                    "url", fullUrl,
+                    "fullUrl", fullUrl, // Explicit full URL field
                     "fileSize", file.getSize(),
                     "contentType", contentType
             ));
@@ -107,6 +119,7 @@ public class UploadController {
 
             List<Map<String, String>> uploadedFiles = new ArrayList<>();
             List<String> urls = new ArrayList<>();
+            List<String> fullUrls = new ArrayList<>();
             List<String> errors = new ArrayList<>();
 
             for (MultipartFile file : files) {
@@ -136,13 +149,15 @@ public class UploadController {
                     Path filePath = uploadDir.resolve(fileName);
                     Files.write(filePath, file.getBytes());
 
-                    String fileUrl = "/upload/" + fileName;
-                    urls.add(fileUrl);
+                    String fullUrl = getBaseUrl() + "/upload/" + fileName;
+                    urls.add(fullUrl);
+                    fullUrls.add(fullUrl);
 
                     uploadedFiles.add(Map.of(
                             "originalName", originalFilename,
                             "fileName", fileName,
-                            "url", fileUrl,
+                            "url", fullUrl,
+                            "fullUrl", fullUrl,
                             "size", String.valueOf(file.getSize())
                     ));
 
@@ -153,7 +168,8 @@ public class UploadController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("uploadedFiles", uploadedFiles);
-            response.put("urls", urls);
+            response.put("urls", fullUrls);
+            response.put("fullUrls", fullUrls); // Explicit full URLs field
             response.put("totalUploaded", uploadedFiles.size());
             response.put("totalFiles", files.size());
             if (!errors.isEmpty()) {
@@ -169,7 +185,7 @@ public class UploadController {
         }
     }
 
-    // Optional: Add delete endpoint
+    // Delete endpoint
     @DeleteMapping("/{filename}")
     public ResponseEntity<?> deleteFile(@PathVariable String filename) {
         try {
