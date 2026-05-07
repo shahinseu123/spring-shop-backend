@@ -21,6 +21,7 @@ import java.util.*;
 @Slf4j
 @RestController
 @RequestMapping("/upload")
+@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.OPTIONS})
 public class UploadController {
 
     @Value("${base-url:https://spring-shop-backend-production.up.railway.app}")

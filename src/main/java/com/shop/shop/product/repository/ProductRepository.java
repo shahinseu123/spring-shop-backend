@@ -25,22 +25,30 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 //    p.imageUrls as imageUrls,
 
     @Query("""
-        SELECT DISTINCT 
-           p.id as id,
-           p.name as name,
-           p.slug as slug,
-           p.sellingPrice as sellingPrice,
-           p.discountPrice as discountPrice,
-           p.discountPercentage as  discountPercentage,       
-           p.sku as  sku,       
-           p.thumbnailUrl as thumbnailUrl,
-           b.name as brandName,
-           b.logoUrl as brandLogoUrl
-        FROM Product p
-        LEFT JOIN p.brand b
-        WHERE (:query IS NULL OR :query = '' OR LOWER(p.name) LIKE CONCAT('%', LOWER(:query), '%'))
-    """)
-    Page<ProductProjection> findAllProducts(@Param("query") String query, Pageable pageable);
+    SELECT DISTINCT 
+       p.id as id,
+       p.name as name,
+       p.slug as slug,
+       p.sellingPrice as sellingPrice,
+       p.discountPrice as discountPrice,
+       p.discountPercentage as discountPercentage,       
+       p.sku as sku,       
+       p.thumbnailUrl as thumbnailUrl,
+       b.name as brandName,
+       b.logoUrl as brandLogoUrl
+    FROM Product p
+    LEFT JOIN p.brand b
+    LEFT JOIN p.category c
+    WHERE (:query IS NULL OR :query = '' OR LOWER(p.name) LIKE CONCAT('%', LOWER(:query), '%'))
+    AND (:categoryName IS NULL OR :categoryName = '' OR LOWER(c.slug) = LOWER(:categoryName))
+    AND (:brandFilter IS NULL OR b.id IN :brandFilter)
+""")
+    Page<ProductProjection> findAllProducts(
+            @Param("query") String query,
+            @Param("categoryName") String categoryName,
+            @Param("brandFilter") List<Long> brandFilter,
+            Pageable pageable
+    );
 
     // Native query for product details (keeping as is)
     @SuppressWarnings("SqlNoDataSourceInspection")

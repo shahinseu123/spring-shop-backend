@@ -2,6 +2,8 @@ package com.shop.shop.category.repository;
 
 import com.shop.shop.category.entity.Category;
 import com.shop.shop.product.entity.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +15,19 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
 
 
+    @Query(value = """
+        SELECT 
+            c.id as id, 
+            c.name as name, 
+            c.slug as slug, 
+            c.image_url as imageUrl,
+            c.created_at as createdAt,
+            c.parent_id as parentId
+        FROM categories c
+        WHERE (:query IS NULL OR :query = '' OR LOWER(c.name) LIKE LOWER(CONCAT('%', :query, '%')))
+        ORDER BY c.parent_id IS NULL DESC, c.name
+        """, nativeQuery = true)
+    List<CategoryProjection> findAllCategories(@Param("query") String query);
     @Query("""
         SELECT c.id as id, 
                c.name as name, 
@@ -23,7 +38,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
         WHERE(:query IS NULL  OR :query = '' OR LOWER(c.name) LIKE LOWER(CONCAT('%', LOWER(:query), '%')))
 
     """)
-    List<CategoryProjection> findAllCategories(@Param("query") String query);
+    Page<CategoryProjection> findPaginatedCategories(@Param("query") String query, Pageable pageable);
 
     @Query("""
     SELECT c.id as id, 
@@ -62,6 +77,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
         String getSlug();
         String getImageUrl();
         LocalDateTime getCreatedAt();
+        Long getParentId();
     }
 
     interface ProductProjection {

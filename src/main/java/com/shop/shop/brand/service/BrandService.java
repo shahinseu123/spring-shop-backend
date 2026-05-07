@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface BrandService {
     BrandDto create(BrandDto dto);
     Brand update(BrandDto dto, Long brandId);
-    Brand delete(Long brandId);
+    Void delete(Long brandId);
     Brand details(Long brandId);
     Page<BrandRepository.BrandProjection> paginatedBrandList(Pageable pageable, String query);
     List<BrandRepository.BrandProjection> brandList(String query);

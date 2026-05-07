@@ -13,6 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
@@ -29,7 +32,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public Product create(ProductCreateDto dto) {
+    public Void create(ProductCreateDto dto) {
         // Check if product with same SKU or name already exists
         if (productRepository.existsBySku(dto.getName().toLowerCase())) {
             throw new RuntimeException("Product with same SKU already exists");
@@ -112,13 +115,15 @@ public class ProductServiceImpl implements ProductService {
         newProduct.setIsPublished(IsPublished.YES);
         newProduct.setHasVariations(HasVariations.YES);
 
-        return productRepository.save(newProduct);
+        productRepository.save(newProduct);
+        return null;
     }
 
     @Override
-    public Page<ProductRepository.ProductProjection> paginatedProducts(Pageable pageable, String query) {
+    public Page<ProductRepository.ProductProjection> paginatedProducts(Pageable pageable, String query, String categoryName, List<Long> brandIds) {
+        List<Long> brandFilter = (brandIds != null && !brandIds.isEmpty()) ? brandIds : null;
 
-        return productRepository.findAllProducts(query, pageable);
+        return productRepository.findAllProducts(query, categoryName, brandFilter, pageable);
     }
 
     @Override

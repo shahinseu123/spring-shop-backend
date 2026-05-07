@@ -1,5 +1,5 @@
 package com.shop.shop;
 
 public enum IsActive {
-    TRUE, FALSE
+    ACTIVE, INACTIVE
 }

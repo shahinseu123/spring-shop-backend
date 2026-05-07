@@ -2,13 +2,15 @@ package com.shop.shop.category.service;
 
 import com.shop.shop.category.dto.CategoryDetailsDto;
 import com.shop.shop.category.dto.CategoryDto;
+import com.shop.shop.category.dto.CategoryTreeDTO;
 import com.shop.shop.category.entity.Category;
 import com.shop.shop.category.repository.CategoryRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -68,7 +70,54 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryRepository.CategoryProjection> categoryList(String query) {
-        return categoryRepository.findAllCategories(query);
+    public List<CategoryTreeDTO> categoryList(String query ) {
+        List<CategoryRepository.CategoryProjection> allCategories = categoryRepository.findAllCategories(query);
+
+        if (!allCategories.isEmpty()) {
+            return buildCategoryTree(allCategories);
+        }
+        return Collections.emptyList();
+        // Build tree structure
+    }
+
+    private List<CategoryTreeDTO> buildCategoryTree(List<CategoryRepository.CategoryProjection> categories) {
+        // Create map of all categories
+        Map<Long, CategoryTreeDTO> categoryMap = new HashMap<>();
+        List<CategoryTreeDTO> rootCategories = new ArrayList<>();
+
+        // First pass: Create DTO objects for all categories
+        for (CategoryRepository.CategoryProjection cat : categories) {
+            CategoryTreeDTO dto = CategoryTreeDTO.builder()
+                    .id(cat.getId())
+                    .name(cat.getName())
+                    .slug(cat.getSlug())
+                    .imageUrl(cat.getImageUrl())
+                    .createdAt(cat.getCreatedAt())
+                    .subCategories(new ArrayList<>())
+                    .build();
+            categoryMap.put(cat.getId(), dto);
+        }
+
+        // Second pass: Build parent-child relationships
+        for (CategoryRepository.CategoryProjection cat : categories) {
+            CategoryTreeDTO dto = categoryMap.get(cat.getId());
+            if (cat.getParentId() == null) {
+                // This is a root category
+                rootCategories.add(dto);
+            } else {
+                // This is a subcategory - add to parent
+                CategoryTreeDTO parent = categoryMap.get(cat.getParentId());
+                if (parent != null) {
+                    parent.getSubCategories().add(dto);
+                }
+            }
+        }
+
+        return rootCategories;
+    }
+
+    @Override
+    public Page<CategoryRepository.CategoryProjection> categoryPaginated(Pageable pageable, String query) {
+        return categoryRepository.findPaginatedCategories(query, pageable);
     }
 }

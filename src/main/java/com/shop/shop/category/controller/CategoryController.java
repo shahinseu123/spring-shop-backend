@@ -2,9 +2,12 @@ package com.shop.shop.category.controller;
 
 import com.shop.shop.category.dto.CategoryDetailsDto;
 import com.shop.shop.category.dto.CategoryDto;
+import com.shop.shop.category.dto.CategoryTreeDTO;
 import com.shop.shop.category.entity.Category;
 import com.shop.shop.category.repository.CategoryRepository;
 import com.shop.shop.category.service.CategoryService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +26,19 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> create(CategoryDto categoryDto) {
+    public ResponseEntity<Void> create(@RequestBody CategoryDto categoryDto) {
         return new ResponseEntity<>(categoryService.create(categoryDto), HttpStatus.OK);
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryRepository.CategoryProjection>> categoryList(@RequestParam("query") Optional<String> query) {
-        return new ResponseEntity<>(categoryService.categoryList(query.orElse(null)), HttpStatus.OK);
+    public ResponseEntity<Page<CategoryRepository.CategoryProjection>> categoryPaginated(Pageable pageable, @RequestParam("search") Optional<String> query) {
+        return new ResponseEntity<>(categoryService.categoryPaginated(pageable, query.orElse(null)), HttpStatus.OK);
+    }
+    @GetMapping("/list")
+    public ResponseEntity<List<CategoryTreeDTO>> categoryList(
+            @RequestParam("search") Optional<String> query) {
+        List<CategoryTreeDTO> categories = categoryService.categoryList(query.orElse(null));
+        return ResponseEntity.ok(categories);
     }
 
     @GetMapping("/details")

@@ -4,6 +4,8 @@ import com.shop.shop.IsActive;
 import com.shop.shop.brand.dto.BrandDto;
 import com.shop.shop.brand.entity.Brand;
 import com.shop.shop.brand.repository.BrandRepository;
+import com.shop.shop.utils.SlugUtils;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,8 +26,8 @@ public class BrandServiceImpl implements BrandService{
         Brand newBrand = new Brand();
         newBrand.setName(dto.getName());
         newBrand.setLogoUrl(dto.getLogoUrl());
-        newBrand.setSlug(dto.getName().toLowerCase());
-        newBrand.setActive(IsActive.TRUE);
+        newBrand.setSlug(SlugUtils.toSlug(dto.getName()));
+        newBrand.setActive(dto.getActive());
         Brand result = brandRepository.save(newBrand);
         dto.setId(result.getId());
         dto.setName(result.getName());
@@ -52,10 +54,13 @@ public class BrandServiceImpl implements BrandService{
     }
 
     @Override
-    public Brand delete(Long brandId) {
-        Brand brand = brandRepository.findById(brandId).orElseThrow(() -> new RuntimeException("Brand not found") );
+    @Transactional
+    public Void delete(Long brandId) {
+        Brand brand = brandRepository.findById(brandId)
+                .orElseThrow(() -> new RuntimeException("Brand not found with id: " + brandId));
+
         brandRepository.delete(brand);
-        return brand;
+        return null;
     }
 
     @Override

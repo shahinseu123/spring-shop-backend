@@ -26,7 +26,7 @@ public class BrandController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createBrand(BrandDto brandDto){
+    public ResponseEntity<?> createBrand(@RequestBody BrandDto brandDto){
        return new ResponseEntity<>(brandService.create(brandDto),HttpStatus.OK);
     }
 
@@ -41,8 +41,9 @@ public class BrandController {
     }
 
     @DeleteMapping("/delete/{brandId}")
-    public ResponseEntity<Brand> deleteBrand(@PathVariable Long brandId){
-       return new ResponseEntity<>(brandService.delete(brandId),HttpStatus.OK);
+    public ResponseEntity<Void> deleteBrand(@PathVariable Long brandId){
+        brandService.delete(brandId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping
