@@ -14,6 +14,12 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
+    @Query("""
+      SELECT p.id as id, p.name as name FROM Product p
+      WHERE(:query IS NULL OR :query = '' OR LOWER(p.name) LIKE CONCAT('%', LOWER(:query), '%') )
+""")
+    List<ProductProjection> findProductList(@Param("query") String query);
+
 
     // Check for duplicate SKU
     boolean existsBySku(String sku);

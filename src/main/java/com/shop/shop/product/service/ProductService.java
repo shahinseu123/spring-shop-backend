@@ -14,6 +14,7 @@ public interface ProductService {
     Page <ProductRepository.ProductProjection> paginatedProducts(Pageable pageable, String query, String categoryName, List<Long> brandIds);
     ProductRepository.ProductDetailsProjection productDetails(Long id);
     Void deleteProduct(Long id);
+    List<ProductRepository.ProductProjection> productList(String query);
 
 
 }

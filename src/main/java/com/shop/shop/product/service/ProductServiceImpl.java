@@ -140,6 +140,11 @@ public class ProductServiceImpl implements ProductService {
         return null;
     }
 
+    @Override
+    public List<ProductRepository.ProductProjection> productList(String query) {
+        return productRepository.findProductList(query);
+    }
+
     // Helper method to generate slug
     private String generateSlug(String name) {
         return name.toLowerCase()

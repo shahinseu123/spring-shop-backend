@@ -47,6 +47,11 @@ public class ProductController {
         );
     }
 
+    @GetMapping("/list")
+    public ResponseEntity<List<ProductRepository.ProductProjection>> productList(@RequestParam("search") Optional<String> query) {
+        return new ResponseEntity<>(productService.productList(query.orElse(null)), HttpStatus.OK);
+    }
+
     @GetMapping("/details/{id}")
     public ResponseEntity<?> productDetails(@PathVariable Long id) {
         return new ResponseEntity<>(productService.productDetails(id), HttpStatus.OK);
