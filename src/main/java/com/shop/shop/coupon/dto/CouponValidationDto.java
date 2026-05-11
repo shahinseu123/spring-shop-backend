@@ -5,6 +5,6 @@ import java.math.BigDecimal;
 public class CouponValidationDto {
     private boolean valid;
     private String message;
-    private BigDecimal discountAmount;
-    private BigDecimal newTotal;
+    private Integer discountAmount;
+    private Integer newTotal;
 }
