@@ -6,8 +6,12 @@ import com.shop.shop.cart.service.CartService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/v1/carts")
+@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.OPTIONS})
+
 public class CartController {
 
     private final CartService cartService;
@@ -52,13 +56,13 @@ public class CartController {
 
     @PostMapping("/create")
     public ResponseEntity<CartResponseDto> createCart(
-            @RequestParam(required = false) Long userId,
-            @RequestParam(required = false) String sessionId) {
+            @RequestParam("userId") Optional<Long> userId,
+            @RequestParam("sessionId") Optional<String> sessionId) {
 
         System.out.println("Received userId: " + userId);
         System.out.println("Received sessionId: " + sessionId);
 
-        Cart cart = cartService.getOrCreateCart(userId, sessionId);
+        Cart cart = cartService.getOrCreateCart(userId.orElse(null), sessionId.orElse(null));
         return ResponseEntity.ok(cartService.getCart(cart.getId()));
     }
 }

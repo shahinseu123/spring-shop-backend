@@ -35,6 +35,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart getOrCreateCart(Long userId, String sessionId) {
+        String sid = sessionId;
         if (userId != null) {
             return cartRepository.findByUserId(userId)
                     .orElseGet(() -> createNewCart(userId, null));
