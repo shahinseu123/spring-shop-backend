@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Entity
 @Table(name = "order_items")
 @Data
@@ -38,23 +36,31 @@ public class OrderItem {
     @Column(nullable = false)
     private Integer quantity;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false)
     private Integer unitPrice;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(name = "total_price")
     private Integer totalPrice;
 
-    @Column(precision = 10, scale = 2)
+    @Column(name = "discount_price")
     private Integer discountPrice;
 
-    // Calculate total for this item
+    // Manual calculation method
+    public Integer getTotalPrice() {
+        if (this.totalPrice == null) {
+            calculateTotalPrice();
+        }
+        return this.totalPrice;
+    }
+
+    public void calculateTotalPrice() {
+        int price = (discountPrice != null && discountPrice > 0) ? discountPrice : unitPrice;
+        this.totalPrice = price * (quantity != null ? quantity : 0);
+    }
+
     @PrePersist
     @PreUpdate
-    public void calculateTotal() {
-        if (discountPrice != null && discountPrice.compareTo(0) > 0) {
-            this.totalPrice = discountPrice * quantity;
-        } else {
-            this.totalPrice = unitPrice * quantity;
-        }
+    public void prePersist() {
+        calculateTotalPrice();
     }
 }

@@ -17,6 +17,9 @@ public class OrderCreateDto {
     @NotNull(message = "Cart ID is required")
     private Long cartId;
 
+    @NotNull(message = "User ID is required")
+    private Long userId;
+
     // Contact Information
     @NotBlank(message = "First name is required")
     @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")

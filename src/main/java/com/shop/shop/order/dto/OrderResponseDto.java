@@ -34,11 +34,11 @@ public class OrderResponseDto {
     private ShippingAddressDto shippingAddress;
 
     // Financial
-    private BigDecimal subtotal;
-    private BigDecimal shippingCost;
-    private BigDecimal discountAmount;
-    private BigDecimal couponDiscount;
-    private BigDecimal totalAmount;
+    private Integer subtotal;
+    private Integer shippingCost;
+    private Integer discountAmount;
+    private Integer couponDiscount;
+    private Integer totalAmount;
 
     // Status
     private OrderStatus orderStatus;

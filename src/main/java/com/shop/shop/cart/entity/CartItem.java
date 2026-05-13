@@ -1,3 +1,4 @@
+// entity/CartItem.java
 package com.shop.shop.cart.entity;
 
 import com.shop.shop.product.entity.Product;
@@ -26,4 +27,18 @@ public class CartItem {
 
     @Column(name = "total_price")
     private Integer totalPrice;
+
+    // Add this field
+    @Column(name = "discount_price")
+    private Integer discountPrice;
+
+    @PrePersist
+    @PreUpdate
+    public void calculateTotal() {
+        if (discountPrice != null && discountPrice > 0) {
+            this.totalPrice = discountPrice * quantity;
+        } else {
+            this.totalPrice = price * quantity;
+        }
+    }
 }
